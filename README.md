@@ -1,4 +1,4 @@
-# TCC_USP_MBA
+# TCC_MBA_USP_ESALQ
 Codificação resultante do trabalho de conclusão de curso da USP - MBA em Data Science e Analytics.
 
 Introdução
