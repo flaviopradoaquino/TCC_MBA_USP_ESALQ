@@ -1,0 +1,132 @@
+---------- Instalação e Importação das Bibliotecas
+!pip install prophet
+!pip install -q yfinance
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import plotly.express as px
+import yfinance as yf
+import datetime
+import plotly.express as px
+from prophet.plot import plot_plotly, plot_components_plotly
+from datetime import date, timedelta
+from prophet import Prophet
+from statsmodels.tsa.seasonal import seasonal_decompose
+from sklearn.metrics import mean_absolute_error
+
+
+---------- Estruturando o Dataset
+dateparse = lambda dates: datetime.datetime.strptime(dates, '%Y-%m-%d')
+dt_atual = date.today()
+td = timedelta(1095)
+df = yf.download("BOVA11.SA", start=(dt_atual-td))['Close']
+df = df.reset_index()
+df_bova_temp = df[['Date', 'Close']].rename(columns = {'Date': 'ds', 'Close': 'y'})
+df_bova = pd.DataFrame({
+  "ds": df_bova_temp['ds'].dt.date,
+  "y":df_bova_temp['y']
+})
+
+
+---------- Excluindo Outliers
+dados = df_bova['y']
+dados.describe()
+boxplot_bova = px.box(dados, y="y")
+boxplot_bova.show()
+
+q1 = np.quantile(dados, .25, interpolation="midpoint")
+q2 = np.quantile(dados, .5, interpolation="midpoint")
+q3 = np.quantile(dados, .75, interpolation="midpoint")
+IIQ = q3 - q1
+
+### Limite inferior do boxplot
+limite_inferior = q1 - 1.5 * IIQ
+limite_inferior
+
+### Limite superior do boxplot
+limite_superior = q3 + 1.5 * IIQ
+limite_superior
+
+df_bova_lim_inf = df_bova[df_bova['y']>limite_inferior]
+df_bova_clean = df_bova_lim_inf[df_bova_lim_inf['y']<limite_superior]
+df_bova_clean
+
+df_bova = df_bova_clean
+df_bova
+
+
+---------- Construindo o Modelo
+### Parâmetros do modelo
+md = Prophet(
+             n_changepoints=20, 
+             seasonality_mode='additive', 
+             seasonality_prior_scale=10, 
+             weekly_seasonality=False,
+             daily_seasonality=False,
+             interval_width=0.90
+             )
+### Adicionando feriados do Brasil
+md.add_country_holidays(country_name='BR')
+md.fit(df_bova)
+
+tempo = md.make_future_dataframe(periods=90)
+previsoes = md.predict(tempo)
+
+previsoes.head(3).T
+
+### Conferindo a aderência dos feriados ao modelo
+md.train_holiday_names
+
+plot_plotly(md, previsoes)
+
+plot_components_plotly(md, previsoes)
+
+
+---------- Avaliando o Modelo
+### Definição do intervalo de tempo
+dt_atual = date.today()
+td = timedelta(1095)
+
+### Importação dos dados do website da Yahoo Finance
+df2 = yf.download("BOVA11.SA", start=(dt_atual-td))['Close']
+
+### Contando o número de observações gerado
+len(df2.index)
+
+### Definindo o dataset de avaliação a partir da linha 365
+df_aval = df2[len(df2.index)-365:]
+df_aval.shape
+df2
+
+### Gerando o boxblot pela variável com o valor de fechamento pregão do dia (Close)
+boxplot_avaliacao = px.box(df_aval, y="Close")
+boxplot_avaliacao.show()
+
+df2.shape
+
+len(df2.index)-365
+
+teste = df2[len(df2.index)-365:]
+teste.shape
+
+teste.head()
+
+pred = md.make_future_dataframe(periods=0)
+previsao = md.predict(pred)
+
+previsao = previsao['yhat'].tail(365)
+
+previsao
+
+teste = teste.reset_index()
+teste
+
+teste = teste[['Close']]
+teste
+
+previsao = previsao.reset_index()
+previsao = previsao[['yhat']]
+previsao
+
+mean_absolute_error(teste, previsao)
