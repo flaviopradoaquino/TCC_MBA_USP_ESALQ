@@ -1,4 +1,5 @@
-# TCC_MBA_USP_ESALQ
+# TCC_MBA_USP_ESALQ - Predição em Séries Temporais
+# Previsão vs Simulação
 Codificação resultante do trabalho de conclusão de curso da USP - MBA em Data Science e Analytics.
 
 Introdução
