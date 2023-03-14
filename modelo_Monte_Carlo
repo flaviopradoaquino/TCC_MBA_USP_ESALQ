@@ -80,7 +80,7 @@ simulacao = 10
 desvio_padrao = df_taxa_retorno.std()
 desvio_padrao
 
-### Distribuição normal
+### Padronização
 Z = stats.norm.ppf(np.random.rand(dias, simulacao))
 
 ### Definição do retorno diário
