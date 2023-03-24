@@ -4,4 +4,4 @@ Codificação resultante do trabalho de conclusão de curso da USP - MBA em Data
 
 Além dos modelos de previsão (Biblioteca Facebook Prophet) e simulação (Método de MOnte Carlo), scripts adicionais foram gerados para ampliar compreensão dos dados obtidos na pesquisa, sendo eles:
 - Teste de Normalidade;
-- 
+- Teste de Estacionariedade
