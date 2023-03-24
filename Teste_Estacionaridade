@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import yfinance as yf
 import datetime
 import statsmodels.tsa.stattools
+import plotly.express as px
 from datetime import date, timedelta
 
 ### Construção do Dataset para o Teste de Estacionaridade
@@ -31,7 +32,7 @@ for chave, valor in kpss_01[3].items():
 ### Teste de Estacionaridade DFuller (Dickey Fuller)
 ## Ho = não é estacionário: estatística do teste > valor crítico
 ## Ha = é estacionário: estatística do teste < valor crítico
-dfuller_01 = statsmodels.tsa.stattools.adfuller(serie1)
+dfuller_01 = statsmodels.tsa.stattools.adfuller(df_teste_est)
 print('Estatítica do teste: {:.4f}'.format(dfuller_01[0]))
 print('p_valor: {:.8f}'.format(dfuller_01[1]))
 print('Valores Críticos:')
@@ -56,9 +57,9 @@ dados.describe()
 boxplot_bova = px.box(dados, y="y")
 boxplot_bova.show()
 
-q1 = np.quantile(dados, .25, interpolation="midpoint")
-q2 = np.quantile(dados, .5, interpolation="midpoint")
-q3 = np.quantile(dados, .75, interpolation="midpoint")
+q1 = np.quantile(dados, .25, method="midpoint")
+q2 = np.quantile(dados, .5, method="midpoint")
+q3 = np.quantile(dados, .75, method="midpoint")
 IIQ = q3 - q1
 
 ### Limite inferior do boxplot
